@@ -11,9 +11,14 @@ LOG_DIR = HOME_DIR + 'logs/'
 today = datetime.datetime.now()
 
 def find_missing():
+   
+    ## Prepare file list 
+    log_file_names = []
+    for root, dirs, files in os.walk(LOG_DIR):
+        log_file_names.extend(files)    
+
     temp_date = datetime.datetime.strptime(START_DATE,'%d%b%Y')
     missing_logs = []
-    log_file_names = os.listdir(LOG_DIR)
     while (temp_date <= today):
         log_done_name = '{}.txt'.format(temp_date.strftime('%d%b%Y'))
         log_half_name = '{}_.txt'.format(temp_date.strftime('%d%b%Y'))
