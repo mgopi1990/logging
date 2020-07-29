@@ -24,6 +24,6 @@ def find_missing():
     return missing_logs
 
 missing_logs = find_missing()
-print (' Missing: ' + str(missing_logs))
+print (' Missing: \n' + '\n  '.join(missing_logs) + '\n')
 print (' Count  : ' + str(len(missing_logs)))
 
