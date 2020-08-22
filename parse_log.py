@@ -4,7 +4,7 @@ import datetime
 import os
 import sys
 
-HOME_DIR = '/home/pi/gopi/logging/'
+HOME_DIR = '/home/pi/gopi/gopi_updates/logging/'
 START_DATE = '21Mar2020'
 
 LOG_DIR = HOME_DIR + 'logs/'
