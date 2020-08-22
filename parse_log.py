@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import sys
 
 HOME_DIR = '/home/pi/gopi/logging/'
 START_DATE = '21Mar2020'
@@ -11,11 +12,17 @@ LOG_DIR = HOME_DIR + 'logs/'
 today = datetime.datetime.now()
 
 def find_missing():
-   
+  
+    if not os.path.exists(HOME_DIR):
+        print (' ERROR: Home Dir ({}) missing'.format(HOME_DIR)) 
+        sys.exit()
+
     ## Prepare file list 
     log_file_names = []
     for root, dirs, files in os.walk(LOG_DIR):
         log_file_names.extend(files)    
+
+    print (log_file_names)
 
     temp_date = datetime.datetime.strptime(START_DATE,'%d%b%Y')
     missing_logs = []
