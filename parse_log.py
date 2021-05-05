@@ -36,6 +36,10 @@ def find_missing():
     return missing_logs
 
 missing_logs = find_missing()
-print (' Missing: \n' + '\n  '.join(missing_logs) + '\n')
-print (' Count  : ' + str(len(missing_logs)))
+print (' Missing: \n')
+for log in missing_logs:
+    print ('   {}  {}'.format(log, 
+        datetime.datetime.strptime(log[0:9],'%d%b%Y').strftime('%a')))
+
+print ('\n Count  : ' + str(len(missing_logs)))
 
