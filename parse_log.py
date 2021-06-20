@@ -25,21 +25,32 @@ def find_missing():
     print (log_file_names)
 
     temp_date = datetime.datetime.strptime(START_DATE,'%d%b%Y')
-    missing_logs = []
+    missing = []
+    halfdone = []
     while (temp_date <= today):
         log_done_name = '{}.txt'.format(temp_date.strftime('%d%b%Y'))
         log_half_name = '{}_.txt'.format(temp_date.strftime('%d%b%Y'))
-        if ((log_done_name not in log_file_names) and 
-            (log_half_name not in log_file_names)):
-           missing_logs.append(log_done_name) 
+        if (log_done_name not in log_file_names): 
+            if (log_half_name in log_file_names):
+                halfdone.append(log_done_name)
+            else:
+                missing.append(log_done_name) 
         temp_date += datetime.timedelta(days=1)
+
+    missing_logs = {}
+    missing_logs['missing'] = missing
+    missing_logs['halfdone'] = halfdone
+
     return missing_logs
 
 missing_logs = find_missing()
 print (' Missing: \n')
-for log in missing_logs:
+for log in missing_logs['missing']:
     print ('   {}  {}'.format(log, 
         datetime.datetime.strptime(log[0:9],'%d%b%Y').strftime('%a')))
 
-print ('\n Count  : ' + str(len(missing_logs)))
+print ('\n Missing Count   : ' + str(len(missing_logs['missing'])))
+print (' Incomplete Count: ' + str(len(missing_logs['halfdone'])))
+print (' Total days to do: ' + str(len(missing_logs['missing']) + len(missing_logs['halfdone'])))
+
 
