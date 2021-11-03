@@ -1,4 +1,4 @@
-password.sh
+src/password.sh
 bin/
 include/
 lib/
