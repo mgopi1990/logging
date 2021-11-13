@@ -29,7 +29,7 @@ def build_year_data_from_text(yr, year_data):
 		log_file_names.extend(files)
 
 	temp_date = datetime.datetime(yr, 1, 1) 
-	end_date  = datetime.datetime(yr+1, 1, 1)
+	end_date  = datetime.datetime(yr+1, 1, 1) if (today.year != yr) else today
 	while (temp_date < end_date):
 		temp_date_str = temp_date.strftime('%d%b%Y')
 		log_done_name = temp_date_str + '.txt'
