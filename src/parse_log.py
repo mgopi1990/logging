@@ -104,25 +104,76 @@ def update_log_stat(log_stat, yr, year_data):
 	log_stat['brief'][yr] = year_data
 
 
-def print_stat(log_stat):
-	print (' Stats: \n')
-	for yr in log_stat['brief'].keys():
-		for date,result in log_stat['brief'][yr]['date'].items():
-			if result == LogStatus.MISSING:
-					print ('M  {}  {}'.format(date, 
-                datetime.datetime.strptime(date,'%d%b%Y').strftime('%a')))
-			elif result == LogStatus.HALFDONE:
-					print ('H     {}  {}'.format(date, 
-                datetime.datetime.strptime(date,'%d%b%Y').strftime('%a')))
+def print_buf(buf):
+	for line in buf:
+		print (' ' + ''.join(line))
+	print ('')
 
-	print ('\n Missing Count   : {}'.format(
+
+def prep_buf_header (date):
+
+	## prepare buffer to print 
+	buf = ['', [], [], [], []]
+	buf[0] = '      Mo Tu We Th Fr Sa Su Mo Tu We Th Fr Sa Su Mo Tu We Th Fr Sa Su'
+
+	## prepare buffer header
+	str_yr = str(date.year)
+	str_mon = date.strftime('%b').upper() 
+	buf[1].append(str_yr[0] + ' ' + ' '		   + ' ' + 'H')
+	buf[2].append(str_yr[1] + ' ' + str_mon[0] + ' ' + 'H')
+	buf[3].append(str_yr[2] + ' ' + str_mon[1] + ' ' + 'M')
+	buf[4].append(str_yr[3] + ' ' + str_mon[2] + ' ' + 'M')
+
+	## reset all date entries
+	for i in range(0, 22):
+		buf[1].append('   ')
+		buf[2].append('   ')
+		buf[3].append('   ')
+		buf[4].append('   ')
+
+	return buf
+
+			
+def update_buf (buf, date, result):
+	day_diff =  datetime.datetime(date.year, date.month, 1).weekday()
+	row = (date.day + day_diff) // 22
+	col = ((date.day + day_diff) % 22) + row
+
+	if (result == LogStatus.MISSING):
+		buf[3 + row][col] = '{:3}'.format(date.day)	
+	elif (result == LogStatus.HALFDONE):
+		buf[1 + row][col] = '{:3}'.format(date.day)	
+
+
+def print_missing_cal (log_stat):
+	for yr in log_stat['brief'].keys():
+		month = 1
+		buf = prep_buf_header (datetime.datetime(yr, month, 1))
+		for str_date,result in log_stat['brief'][yr]['date'].items():
+			date = datetime.datetime.strptime(str_date, '%d%b%Y')
+			if (month != date.month):
+				print_buf (buf) 
+				buf = prep_buf_header (date)
+				month = date.month
+			update_buf (buf, date, result)
+	print_buf (buf)
+
+
+def print_stat_summary (log_stat):
+	print (' Stats:')
+	print ('  Missing Count   : {}'.format(
 				log_stat['summary'][LogStatus.MISSING.value]))
-	print (' Incomplete Count: {}'.format(
+	print ('  Incomplete Count: {}'.format(
 				log_stat['summary'][LogStatus.HALFDONE.value]))
-	print (' Total days to do: {}/{}'.format(
+	print ('  Total days to do: {}/{}'.format(
             (log_stat['summary'][LogStatus.MISSING.value] + 
 			 log_stat['summary'][LogStatus.HALFDONE.value]), 
             str(log_stat['summary']['days'])))
+
+
+def print_stat(log_stat):
+	print_missing_cal (log_stat)
+	print_stat_summary (log_stat)
 
 
 if __name__ == '__main__':
