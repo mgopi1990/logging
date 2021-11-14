@@ -4,6 +4,8 @@ import datetime
 import os
 import sys
 from enum import IntEnum
+from prettytable import PrettyTable
+
 
 HOME_DIR = '/home/pi/gopi/gopi_updates/logging/'
 START_DATE = '21Mar2020'
@@ -168,7 +170,6 @@ def print_missing_cal (log_stat):
 
 
 def print_stat_summary (log_stat):
-	print (' Stats:')
 
 	## we want the total to be in the end
 	## idiot, mixed int (year) with str 'Total'
@@ -177,17 +178,23 @@ def print_stat_summary (log_stat):
 	temp_summary_list.sort()
 	temp_summary_list.append('Total')
 
+	## select enum fields to display
+	missing_enum_list = [LogStatus.MISSING, LogStatus.HALFDONE]
+
+	## create table
+	summary_table = PrettyTable (['Year'] + 
+						[x.name for x in missing_enum_list] + ['DaysToGo'])
+	summary_table.title = 'STATS SUMMARY'
 	for yr in temp_summary_list:
-		print (f' {yr}:')
-		print ('  Missing Count   : {}'.format(
-					log_stat['summary'][yr][LogStatus.MISSING.value]))
-		print ('  Incomplete Count: {}'.format(
-					log_stat['summary'][yr][LogStatus.HALFDONE.value]))
-		print ('  Total days to do: {}/{}'.format(
-            (log_stat['summary'][yr][LogStatus.MISSING.value] + 
-			 log_stat['summary'][yr][LogStatus.HALFDONE.value]), 
-            str(log_stat['summary'][yr]['days'])))
-		print ('')
+		temp_row = [yr]
+		tot = 0
+		for lstatus in missing_enum_list:
+			tot += log_stat['summary'][yr][lstatus.value] 
+			temp_row.append(log_stat['summary'][yr][lstatus.value])
+
+		temp_row.append('{}/{}'.format(tot, log_stat['summary'][yr]['days']))
+		summary_table.add_row(temp_row)
+	print (summary_table.get_string() + '\n')
 
 
 def print_stat(log_stat):
