@@ -81,26 +81,34 @@ def build_log_stats():
 def update_log_stat(log_stat, yr, year_data):
 
 	## defaults
+	log_stat['summary'][yr] = {}
 	for status in LogStatus:
-		log_stat['summary'].setdefault(status.value, 0)
+		log_stat['summary'][yr].setdefault(status.value, 0)
 
 	#print (log_stat['summary'])
 
 	## Update days count
-	log_stat['summary'].setdefault('days', 0)
-	log_stat['summary']['days'] += len(year_data['date'])
+	log_stat['summary'][yr].setdefault('days', 0)
+	log_stat['summary'][yr]['days'] += len(year_data['date'])
 
 	#print (year_data)
 
 	## count summary
 	for date in list(year_data['date'].keys()):
 		status = year_data['date'][date]
-		log_stat['summary'][status] += 1
+		log_stat['summary'][yr][status] += 1
 
 		## remove complete from list
 		if (status == LogStatus.COMPLETE):
 			del(year_data['date'][date])
 
+	## update summary total
+	log_stat['summary'].setdefault('Total', {})
+	for k in log_stat['summary'][yr].keys():
+		log_stat['summary']['Total'].setdefault(k, 0)
+		log_stat['summary']['Total'][k] += log_stat['summary'][yr][k]
+
+	## store brief info for the year
 	log_stat['brief'][yr] = year_data
 
 
@@ -161,14 +169,25 @@ def print_missing_cal (log_stat):
 
 def print_stat_summary (log_stat):
 	print (' Stats:')
-	print ('  Missing Count   : {}'.format(
-				log_stat['summary'][LogStatus.MISSING.value]))
-	print ('  Incomplete Count: {}'.format(
-				log_stat['summary'][LogStatus.HALFDONE.value]))
-	print ('  Total days to do: {}/{}'.format(
-            (log_stat['summary'][LogStatus.MISSING.value] + 
-			 log_stat['summary'][LogStatus.HALFDONE.value]), 
-            str(log_stat['summary']['days'])))
+
+	## we want the total to be in the end
+	## idiot, mixed int (year) with str 'Total'
+	temp_summary_list = list (log_stat['summary'].keys())
+	temp_summary_list.remove('Total')
+	temp_summary_list.sort()
+	temp_summary_list.append('Total')
+
+	for yr in temp_summary_list:
+		print (f' {yr}:')
+		print ('  Missing Count   : {}'.format(
+					log_stat['summary'][yr][LogStatus.MISSING.value]))
+		print ('  Incomplete Count: {}'.format(
+					log_stat['summary'][yr][LogStatus.HALFDONE.value]))
+		print ('  Total days to do: {}/{}'.format(
+            (log_stat['summary'][yr][LogStatus.MISSING.value] + 
+			 log_stat['summary'][yr][LogStatus.HALFDONE.value]), 
+            str(log_stat['summary'][yr]['days'])))
+		print ('')
 
 
 def print_stat(log_stat):
